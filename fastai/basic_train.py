@@ -8,6 +8,7 @@ import inspect
 from fastprogress.fastprogress import format_time, IN_NOTEBOOK
 from time import time
 from .sixel import plot_sixel
+from tqdm import tqdm
 
 __all__ = ['Learner', 'LearnerCallback', 'Recorder', 'RecordOnCPU', 'fit', 'loss_batch', 'train_epoch', 'validate',
            'get_preds', 'load_learner']
@@ -54,7 +55,8 @@ def validate(model:nn.Module, dl:DataLoader, loss_func:OptLossFunc=None, cb_hand
     with torch.no_grad():
         val_losses,nums = [],[]
         if cb_handler: cb_handler.set_dl(dl)
-        for xb,yb in progress_bar(dl, parent=pbar, leave=(pbar is not None)):
+        #for xb,yb in progress_bar(dl, parent=pbar, leave=(pbar is not None)):
+        for xb,yb in tqdm(dl):
             if cb_handler: xb, yb = cb_handler.on_batch_begin(xb, yb, train=False)
             val_loss = loss_batch(model, xb, yb, loss_func, cb_handler=cb_handler)
             val_losses.append(val_loss)
@@ -96,7 +98,8 @@ def fit(epochs:int, learn:BasicLearner, callbacks:Optional[CallbackList]=None, m
             learn.model.train()
             cb_handler.set_dl(learn.data.train_dl)
             cb_handler.on_epoch_begin()
-            for xb,yb in progress_bar(learn.data.train_dl, parent=pbar):
+            #for xb,yb in progress_bar(learn.data.train_dl, parent=pbar):
+            for xb,yb in tqdm(learn.data.train_dl):
                 xb, yb = cb_handler.on_batch_begin(xb, yb)
                 loss = loss_batch(learn.model, xb, yb, learn.loss_func, learn.opt, cb_handler)
                 if cb_handler.on_batch_end(loss): break
