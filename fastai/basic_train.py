@@ -94,7 +94,7 @@ def fit(epochs:int, learn:BasicLearner, callbacks:Optional[CallbackList]=None, m
 
     exception=False
     try:
-        for epoch in pbar:
+        for epoch in range(epochs):
             learn.model.train()
             cb_handler.set_dl(learn.data.train_dl)
             cb_handler.on_epoch_begin()
